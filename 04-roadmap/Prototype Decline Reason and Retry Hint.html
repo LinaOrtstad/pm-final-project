@@ -1,0 +1,425 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Decline Reason and Retry Hint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: phone prototype beside a dashed, non-app control panel.
+     Colours: Riverty Design System semantic tokens, Alta UI values (tokens/design-system.md), light and dark.
+     Type: platform sans for UI, system serif for monetary totals and display headings (contexts.md).
+     Radius: Alta tokens. Spacing: 4/8/12/16/24/32/40/56. */
+  :root {
+    --r-text-regular: #282828;
+    --r-text-soft: #686868;
+    --r-text-inverse: #FFFFFF;
+    --r-text-inverse-static: #FFFFFF;
+    --r-background-softer: #F7F7F7;
+    --r-background-softest: #FFFFFF;
+    --r-background-soft: #E5E5E5;
+    --r-background-regular: #282828;
+    --r-background-state-selected: rgba(40, 40, 40, 0.08);
+    --r-border-regular: #282828;
+    --r-border-softer: #C9C9C9;
+    --r-border-softest: #E5E5E5;
+    --r-border-focused: #0071E3;
+    --r-status-error-regular: #B00C15;
+    --r-status-error-regular-static: #B00C15;
+    --r-status-error-soft: #FEF6F6;
+    --r-status-success-regular: #298535;
+    --r-status-success-soft: #F7FDF8;
+    --r-shadow: rgba(0, 0, 0, 0.24);
+    --r-radius-m: 8px;
+    --r-radius-l: 12px;
+    --r-radius-xl: 16px;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: ui-serif, Georgia, "Times New Roman", serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --r-text-regular: #F7F7F7;
+      --r-text-soft: #C9C9C9;
+      --r-text-inverse: #282828;
+      --r-background-softer: #141414;
+      --r-background-softest: #282828;
+      --r-background-soft: #000000;
+      --r-background-regular: #F7F7F7;
+      --r-background-state-selected: rgba(247, 247, 247, 0.08);
+      --r-border-regular: #F7F7F7;
+      --r-border-softer: #686868;
+      --r-border-softest: #C9C9C9;
+      --r-status-error-regular: #FF969C;
+      --r-status-error-soft: #190606;
+      --r-status-success-regular: #80CE88;
+      --r-status-success-soft: #212B22;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --r-text-regular: #F7F7F7;
+    --r-text-soft: #C9C9C9;
+    --r-text-inverse: #282828;
+    --r-background-softer: #141414;
+    --r-background-softest: #282828;
+    --r-background-soft: #000000;
+    --r-background-regular: #F7F7F7;
+    --r-background-state-selected: rgba(247, 247, 247, 0.08);
+    --r-border-regular: #F7F7F7;
+    --r-border-softer: #686868;
+    --r-border-softest: #C9C9C9;
+    --r-status-error-regular: #FF969C;
+    --r-status-error-soft: #190606;
+    --r-status-success-regular: #80CE88;
+    --r-status-success-soft: #212B22;
+    color-scheme: dark;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--r-background-softest); color: var(--r-text-regular); font-family: var(--font-ui); }
+  :focus-visible { outline: 2px solid var(--r-border-focused); outline-offset: 2px; }
+  .page { max-width: 880px; margin: 0 auto; padding-block: 24px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 24px; margin: 0 0 4px; text-wrap: balance; }
+  .sub { color: var(--r-text-soft); font-size: 14px; margin: 0 0 24px; line-height: 1.4; }
+  .layout { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+  .stage { max-width: 100%; overflow-x: auto; padding: 4px; }
+
+  /* ---------- Control panel (prototype only, not part of the app) ---------- */
+  .panel { flex: 1 1 260px; max-width: 340px; min-width: 0; background: var(--r-background-softer);
+    border: 2px dashed var(--r-border-softer); border-radius: var(--r-radius-l); padding: 16px; }
+  .panel h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--r-text-soft); margin: 0 0 12px; }
+  .panel label { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 8px; }
+  .panel select { width: 100%; padding: 8px; font-size: 14px; border-radius: var(--r-radius-m); border: 1px solid var(--r-border-softer);
+    background: var(--r-background-softest); color: var(--r-text-regular); font-family: inherit; }
+  .panel .check { display: flex; gap: 8px; align-items: center; font-weight: 400; font-size: 14px; }
+  .btn-sim { width: 100%; margin-top: 16px; padding: 12px; font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+    border: 0; border-radius: var(--r-radius-m); background: var(--r-background-regular); color: var(--r-text-inverse); cursor: pointer; font-family: inherit; }
+  .btn-reset { width: 100%; margin-top: 8px; padding: 8px; font-size: 14px; border-radius: var(--r-radius-m); border: 1px solid var(--r-border-softer);
+    background: transparent; color: var(--r-text-regular); cursor: pointer; font-family: inherit; }
+  .note { font-size: 12px; color: var(--r-text-soft); margin-top: 12px; line-height: 1.5; }
+  #checks { font-size: 12px; margin-top: 12px; padding: 8px 12px; border-radius: var(--r-radius-m); background: var(--r-background-softest); line-height: 1.5; }
+  .ok { color: var(--r-status-success-regular); font-weight: 700; }
+  .bad { color: var(--r-status-error-regular); font-weight: 700; }
+
+  /* ---------- Phone (fixed 375x667 device frame) ---------- */
+  .phone { position: relative; width: 375px; height: 667px; flex: none; background: var(--r-background-softer); color: var(--r-text-regular);
+    border-radius: 32px; border: 1px solid var(--r-border-softer); box-shadow: 0 8px 32px var(--r-shadow); overflow: hidden; }
+  .status { height: 28px; display: flex; justify-content: space-between; align-items: center; padding: 0 24px;
+    font-size: 12px; font-weight: 700; }
+  .screen { position: absolute; top: 28px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+
+  /* Screen 1 */
+  .app-head { padding: 12px 16px 8px; }
+  .app-head .brand { font-size: 12px; color: var(--r-text-soft); font-weight: 600; }
+  .app-head h3 { margin: 4px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 32px; }
+  .feed { flex: 1; overflow-y: auto; padding: 4px 12px 16px; }
+  .sec { font-size: 12px; color: var(--r-text-soft); font-weight: 700; padding: 12px 8px 4px; text-transform: uppercase; letter-spacing: .06em; }
+  .row { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 8px; border: 0; background: none;
+    border-bottom: 1px solid var(--r-border-softer); text-align: left; font: inherit; color: inherit; cursor: default; }
+  button.row.live { cursor: pointer; background: var(--r-status-error-soft); border: 1px solid var(--r-status-error-regular);
+    border-radius: var(--r-radius-l); margin-bottom: 4px; padding: 12px; }
+  .avatar { width: 40px; height: 40px; flex: none; border-radius: 50%; background: var(--r-background-soft); display: grid; place-items: center;
+    font-weight: 700; color: var(--r-text-regular); }
+  .row.live .avatar { background: var(--r-background-softest); color: var(--r-status-error-regular); }
+  .mid { flex: 1; min-width: 0; }
+  .merchant { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .meta { font-size: 12px; color: var(--r-text-soft); margin-top: 4px; }
+  .end { text-align: right; }
+  .amt { font-size: 16px; font-weight: 700; }
+  .lbl { font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .lbl.red { color: var(--r-status-error-regular); } .lbl.green { color: var(--r-status-success-regular); } .lbl.grey { color: var(--r-text-soft); }
+  .badge-new { font-size: 12px; font-weight: 700; background: var(--r-status-error-regular-static); color: var(--r-text-inverse-static); padding: 0 8px; border-radius: 999px; }
+
+  /* Banner (simulated notification) */
+  .banners { position: absolute; top: 36px; left: 8px; right: 8px; z-index: 20; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .banner { pointer-events: auto; width: 100%; text-align: left; border: 1px solid var(--r-border-softer); font: inherit; cursor: pointer; color: var(--r-text-regular);
+    background: var(--r-background-softest); border-radius: var(--r-radius-xl); padding: 12px 16px; box-shadow: 0 8px 16px var(--r-shadow);
+    animation: drop .25s ease-out; }
+  .banner .top { display: flex; justify-content: space-between; font-size: 12px; color: var(--r-text-soft); margin-bottom: 4px; font-weight: 600; }
+  .banner .t { font-size: 14px; font-weight: 700; }
+  .banner .b { font-size: 14px; margin-top: 4px; }
+  @keyframes drop { from { transform: translateY(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .banner { animation: none; } }
+
+  /* Screen 2 */
+  .nav { height: 44px; display: flex; align-items: center; padding: 0 8px; }
+  .back { border: 0; background: none; font-size: 24px; padding: 4px 12px; cursor: pointer; color: var(--r-text-regular); }
+  .d-head { padding: 0 16px 16px; border-bottom: 1px solid var(--r-border-softer); }
+  .d-head .m { font-size: 16px; font-weight: 700; }
+  .d-head .a { font-family: var(--font-display); font-size: 40px; font-weight: 400; margin: 4px 0; }
+  .d-head .t { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--r-text-soft); }
+  .chip { font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: var(--r-status-error-soft);
+    border: 1px solid var(--r-status-error-regular); color: var(--r-status-error-regular); }
+  .block { margin: 16px 16px 0; padding: 16px; border-radius: var(--r-radius-l); background: var(--r-background-softest); border: 1px solid var(--r-border-softer); }
+  .reason { display: flex; gap: 12px; align-items: flex-start; }
+  .ico { width: 32px; height: 32px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 16px;
+    background: var(--r-status-error-soft); border: 1px solid var(--r-status-error-regular); color: var(--r-status-error-regular); }
+  .block .k { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--r-text-soft); margin-bottom: 4px; }
+  .reason .h { font-size: 16px; font-weight: 700; line-height: 1.4; }
+  .hint .ht { font-size: 20px; font-weight: 700; }
+  .hint .hl { font-size: 16px; margin-top: 4px; line-height: 1.4; }
+  .spacer { flex: 1; }
+  .actions { padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .btn { width: 100%; padding: 16px; font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; border-radius: var(--r-radius-m); cursor: pointer; font-family: inherit; }
+  .btn.prim { background: var(--r-background-regular); color: var(--r-text-inverse); border: 2px solid var(--r-background-regular); }
+  .btn.prim:disabled { opacity: .6; cursor: default; }
+  .btn.sec { background: transparent; color: var(--r-text-regular); border: 2px solid var(--r-border-regular); }
+
+  /* Screen 3 */
+  .res { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 56px 24px 0; text-align: center; }
+  .big { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; font-size: 40px; font-weight: 800; }
+  .big.green { background: var(--r-status-success-soft); border: 2px solid var(--r-status-success-regular); color: var(--r-status-success-regular); }
+  .big.grey { background: var(--r-background-soft); color: var(--r-text-regular); }
+  .res h4 { font-family: var(--font-display); font-weight: 400; font-size: 28px; margin: 16px 0 8px; }
+  .res .line { font-size: 16px; color: var(--r-text-soft); line-height: 1.4; }
+  .recap { width: 100%; margin-top: 24px; border: 1px solid var(--r-border-softer); border-radius: var(--r-radius-l); background: var(--r-background-softest); text-align: left; }
+  .recap div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--r-border-softer); }
+  .recap div:last-child { border-bottom: 0; }
+  .recap span:first-child { color: var(--r-text-soft); }
+  .recap b.g { color: var(--r-status-success-regular); }
+</style>
+
+<div class="page">
+  <h1>Decline reason and retry hint</h1>
+  <p class="sub">Simulate a declined tap, open the notification, and follow the reason and the hint. All data is fictional and held in memory.</p>
+
+  <div class="layout">
+    <div class="stage">
+      <div class="phone" id="phone" aria-label="Phone app prototype">
+        <div class="status"><span>9:41</span><span>●●● 5G</span></div>
+        <div class="banners" id="banners"></div>
+        <div class="screen" id="screen"></div>
+      </div>
+    </div>
+
+    <aside class="panel" aria-label="Prototype controls">
+      <h2>Prototype controls (not part of the app)</h2>
+      <label for="scenario">Scenario</label>
+      <select id="scenario"></select>
+      <label class="check" for="oldChk"><input type="checkbox" id="oldChk"> Make this decline 11 minutes old</label>
+      <button class="btn-sim" id="simBtn">Simulate decline</button>
+      <button class="btn-reset" id="resetBtn">Reset prototype</button>
+      <div id="latency" class="note"></div>
+      <div id="checks"></div>
+      <div class="note">Scenarios 1 and 3 approve on retry. Scenario 2 declines again on retry. You can simulate several declines in a row; each gets its own row and notification.</div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- One fixed copy table (FR2, FR3, FR4, FR7). No text is generated at run time. ---------- */
+  var REASONS = {
+    TECH:        { reason: "The payment didn’t go through because of a connection problem.", hint: "retry", line: "Tap again in a few seconds." },
+    CONTACTLESS: { reason: "This tap is above the contactless limit.",                       hint: "retry", line: "Tap again and enter your PIN." },
+    LIMIT:       { reason: "You’ve reached your pay later limit.",                           hint: "other" },
+    OVERDUE:     { reason: "A payment on your account is overdue.",                          hint: "other" },
+    BLOCKED:     { reason: "This card is blocked or not yet activated.",                     hint: "other" },
+    FALLBACK:    { reason: "This payment couldn’t be approved.",                             hint: "other" }
+  };
+  var HINT_TITLE = { retry: "Try again", other: "Pay another way", old: "Try again next time you pay" };
+  var HINT_LINE_OTHER = "Use another card or cash for this purchase.";
+  var HINT_LINE_OLD = "This tap is too old to retry now.";
+  var BLOCKLIST = /fraud|score|model|rule|suspicious/i;
+  var MAX_WORDS = 12;
+  var RETRY_WINDOW_MIN = 10;
+
+  function lookup(code) {            // code lookup only; unknown or missing codes use the fallback
+    return Object.prototype.hasOwnProperty.call(REASONS, code) ? REASONS[code] : REASONS.FALLBACK;
+  }
+
+  /* ---------- Hardcoded fictional scenarios ---------- */
+  var SCENARIOS = [
+    { label: "1 · Connection problem, retry approved",   code: "TECH",        merchant: "Greenfield Market", amount: 27.40, retry: "approve" },
+    { label: "2 · Connection problem, retry declines",   code: "TECH",        merchant: "Corner Fresh",      amount: 18.95, retry: "decline" },
+    { label: "3 · Above contactless limit, retry approved", code: "CONTACTLESS", merchant: "Metro Supermart", amount: 64.30, retry: "approve" },
+    { label: "4 · Pay later limit reached",              code: "LIMIT",       merchant: "Baker’s Basket",    amount: 35.10 },
+    { label: "5 · Payment overdue",                      code: "OVERDUE",     merchant: "Daily Market",      amount: 22.60 },
+    { label: "6 · Card blocked or not activated",        code: "BLOCKED",     merchant: "Fresh & Co",        amount: 15.75 },
+    { label: "7 · Unmapped decline code",                code: "E-7731",      merchant: "Harbor Grocer",     amount: 48.20 }
+  ];
+  var STATIC_ROWS = [
+    { merchant: "Corner Café",      amount: 3.40,  when: "Today 08:52" },
+    { merchant: "Metro Pharmacy",   amount: 12.90, when: "Yesterday 17:20" },
+    { merchant: "Greenfield Market", amount: 41.15, when: "Yesterday 12:05" },
+    { merchant: "Daily Bakery",     amount: 2.60,  when: "Mon 08:10" }
+  ];
+
+  /* ---------- State (memory only) ---------- */
+  var txs = [], extraRows = [], seq = 0, view = { name: "feed" }, bannerSeq = 0;
+
+  /* ---------- Helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function money(n) { return "€" + n.toFixed(2); }
+  function clock(ts) { return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+  function findTx(id) { for (var i = 0; i < txs.length; i++) if (txs[i].id === id) return txs[i]; return null; }
+  function ageMin(tx) { return (Date.now() - tx.ts) / 60000; }
+
+  /* ---------- Screen 1: feed ---------- */
+  function renderFeed() {
+    var html = '<div class="app-head"><div class="brand">BU Pay &amp; Credit · Pay later</div><h3>Activity</h3></div><div class="feed">';
+    if (txs.length) html += '<div class="sec">Today</div>';
+    txs.forEach(function (tx) {
+      var open = tx.state === "open";
+      var label = tx.state === "resolved" ? '<div class="lbl green">Resolved</div>'
+                : tx.state === "seen" ? '<div class="lbl grey">Seen</div>'
+                : '<div class="lbl red">Declined</div>';
+      html += '<' + (open ? 'button' : 'div') + ' class="row' + (open ? ' live' : '') + '"' + (open ? ' data-open="' + tx.id + '"' : '') + '>' +
+        '<div class="avatar">' + esc(tx.merchant.charAt(0)) + '</div>' +
+        '<div class="mid"><div class="merchant">' + esc(tx.merchant) + (tx.opened ? '' : '<span class="badge-new">New</span>') + '</div>' +
+        '<div class="meta">Today ' + clock(tx.ts) + '</div></div>' +
+        '<div class="end"><div class="amt">' + money(tx.amount) + '</div>' + label + '</div></' + (open ? 'button' : 'div') + '>';
+    });
+    html += '<div class="sec">Earlier</div>';
+    extraRows.concat(STATIC_ROWS).forEach(function (r) {
+      html += '<div class="row"><div class="avatar">' + esc(r.merchant.charAt(0)) + '</div>' +
+        '<div class="mid"><div class="merchant">' + esc(r.merchant) + '</div><div class="meta">' + esc(r.when) + '</div></div>' +
+        '<div class="end"><div class="amt">' + money(r.amount) + '</div><div class="lbl green">Approved</div></div></div>';
+    });
+    html += '</div>';
+    $("screen").innerHTML = html;
+    Array.prototype.forEach.call($("screen").querySelectorAll("[data-open]"), function (el) {
+      el.addEventListener("click", function () { openDecline(Number(el.getAttribute("data-open"))); });
+    });
+  }
+
+  /* ---------- Screen 2: decline detail ---------- */
+  function renderDetail(tx) {
+    var r = lookup(tx.code);
+    var old = ageMin(tx) >= RETRY_WINDOW_MIN;
+    var retryable = r.hint === "retry" && !tx.secondDecline;
+    var hintKey = retryable ? (old ? "old" : "retry") : "other";
+    var hintLine = hintKey === "retry" ? r.line : hintKey === "old" ? HINT_LINE_OLD : HINT_LINE_OTHER;
+    var showRetry = hintKey === "retry";
+    $("screen").innerHTML =
+      '<div class="nav"><button class="back" id="backBtn" aria-label="Back to activity">←</button></div>' +
+      '<div class="d-head"><div class="m">' + esc(tx.merchant) + '</div><div class="a">' + money(tx.amount) + '</div>' +
+      '<div class="t"><span>Today ' + clock(tx.ts) + '</span><span class="chip">Declined</span></div></div>' +
+      '<div class="block"><div class="reason"><div class="ico">!</div><div><div class="k">Why</div><div class="h">' + esc(r.reason) + '</div></div></div></div>' +
+      '<div class="block hint"><div class="k">What to do</div><div class="ht">' + HINT_TITLE[hintKey] + '</div><div class="hl">' + esc(hintLine) + '</div></div>' +
+      '<div class="spacer"></div>' +
+      '<div class="actions">' +
+        (showRetry ? '<button class="btn prim" id="retryBtn">Retry payment</button>' : '') +
+        '<button class="btn sec" id="gotBtn">Got it</button></div>';
+    $("backBtn").addEventListener("click", function () { go({ name: "feed" }); });
+    $("gotBtn").addEventListener("click", function () { tx.state = "seen"; go({ name: "result", id: tx.id, variant: "B" }); });
+    if (showRetry) $("retryBtn").addEventListener("click", function () { doRetry(tx); });
+  }
+
+  function doRetry(tx) {
+    var btn = $("retryBtn");
+    btn.disabled = true; btn.textContent = "Retrying…";
+    tx.retried = true;               // FR8: one retry prompt per transaction
+    setTimeout(function () {
+      if (tx.retry === "approve") {
+        tx.status = "final-declined"; tx.state = "resolved"; tx.approvedAt = Date.now();
+        extraRows.unshift({ merchant: tx.merchant, amount: tx.amount, when: "Today " + clock(tx.approvedAt) });
+        go({ name: "result", id: tx.id, variant: "A" });
+      } else {
+        tx.secondDecline = true; tx.status = "final-declined";
+        if (view.name === "detail" && view.id === tx.id) renderDetail(tx);
+      }
+    }, 800);
+  }
+
+  /* ---------- Screen 3: resolution ---------- */
+  function renderResult(tx, variant) {
+    var body;
+    if (variant === "A") {
+      body = '<div class="big green">✓</div><h4>Approved on second try</h4>' +
+        '<div class="recap">' +
+          '<div><span>Merchant</span><b>' + esc(tx.merchant) + '</b></div>' +
+          '<div><span>Amount</span><b>' + money(tx.amount) + '</b></div>' +
+          '<div><span>Time</span><b>' + clock(tx.approvedAt) + '</b></div>' +
+          '<div><span>Payment</span><b class="g">Paid with pay later</b></div>' +
+          (tx.status === "final-declined" ? '<div><span>Declined attempt</span><b>Not charged</b></div>' : '') +
+        '</div>';
+    } else {
+      body = '<div class="big grey">✓</div><h4>Got it</h4><div class="line">This purchase wasn’t paid with pay later.</div>';
+    }
+    $("screen").innerHTML = '<div class="res">' + body + '</div><div class="actions"><button class="btn prim" id="doneBtn">Done</button></div>';
+    $("doneBtn").addEventListener("click", function () { go({ name: "feed" }); });
+  }
+
+  /* ---------- Navigation ---------- */
+  function go(v) {
+    view = v;
+    if (v.name === "feed") renderFeed();
+    else if (v.name === "detail") renderDetail(findTx(v.id));
+    else renderResult(findTx(v.id), v.variant);
+  }
+  function openDecline(id) {         // FR6: notification or row opens the decline screen in 1 tap
+    var tx = findTx(id);
+    if (!tx || tx.state !== "open") { go({ name: "feed" }); return; }
+    tx.opened = true;
+    go({ name: "detail", id: id });
+  }
+
+  /* ---------- Simulated notification ---------- */
+  function showBanner(tx, t0) {
+    var r = lookup(tx.code), id = "b" + (++bannerSeq);
+    var el = document.createElement("button");
+    el.className = "banner"; el.id = id;
+    el.innerHTML = '<div class="top"><span>BU PAY &amp; CREDIT</span><span>now</span></div>' +
+      '<div class="t">Payment declined at ' + esc(tx.merchant) + '</div><div class="b">' + esc(r.reason) + '</div>';
+    el.addEventListener("click", function () { el.remove(); openDecline(tx.id); });
+    var box = $("banners");
+    box.appendChild(el);
+    while (box.children.length > 3) box.removeChild(box.firstChild);
+    setTimeout(function () { if (el.parentNode) el.remove(); }, 8000);   // dismissed unseen: row keeps its New badge
+    $("latency").textContent = "Notification shown " + ((performance.now() - t0) / 1000).toFixed(1) + " s after Simulate decline (limit: 5 s).";
+  }
+
+  function simulate() {
+    var t0 = performance.now();
+    var s = SCENARIOS[Number($("scenario").value)];
+    var old = $("oldChk").checked;
+    var tx = { id: ++seq, code: s.code, merchant: s.merchant, amount: s.amount, retry: s.retry,
+      ts: Date.now() - (old ? 11 * 60000 : 0), status: "declined", state: "open", opened: false, retried: false, secondDecline: false };
+    txs.unshift(tx);
+    if (view.name === "feed") renderFeed();                              // FR1: row appears in the feed
+    setTimeout(function () { showBanner(tx, t0); }, 300);
+  }
+
+  function reset() { txs = []; extraRows = []; seq = 0; $("banners").innerHTML = ""; $("latency").textContent = ""; go({ name: "feed" }); }
+
+  /* ---------- Built-in checks (FR2, FR3, FR4, FR7) ---------- */
+  function runChecks() {
+    var mapped = 0, stringBad = 0, retryBad = 0;
+    SCENARIOS.forEach(function (s) {
+      var r = lookup(s.code);
+      if (r && r.reason) mapped++;
+      if (r.hint === "retry" && !(s.code === "TECH" || s.code === "CONTACTLESS")) retryBad++;
+    });
+    Object.keys(REASONS).forEach(function (k) {
+      var r = REASONS[k];
+      [r.reason, r.line || ""].forEach(function (str) {
+        if (str.split(/\s+/).filter(Boolean).length > MAX_WORDS || BLOCKLIST.test(str)) stringBad++;
+      });
+    });
+    Object.keys(HINT_TITLE).forEach(function (k) { if (BLOCKLIST.test(HINT_TITLE[k])) stringBad++; });
+    [HINT_LINE_OTHER, HINT_LINE_OLD].forEach(function (str) { if (str.split(/\s+/).length > MAX_WORDS || BLOCKLIST.test(str)) stringBad++; });
+    var unmappedOk = lookup("E-7731") === REASONS.FALLBACK && lookup(undefined) === REASONS.FALLBACK;
+    function cls(ok) { return ok ? "ok" : "bad"; }
+    $("checks").innerHTML =
+      '<b>Built-in checks</b><br>' +
+      '<span class="' + cls(mapped === 7) + '">' + mapped + ' of 7</span> scenarios show a reason<br>' +
+      '<span class="' + cls(stringBad === 0) + '">' + stringBad + '</span> strings over 12 words or blocklisted<br>' +
+      '<span class="' + cls(retryBad === 0) + '">' + retryBad + '</span> retry hints on non-retryable reasons<br>' +
+      '<span class="' + cls(unmappedOk) + '">' + (unmappedOk ? "Pass" : "Fail") + '</span> unmapped or missing code uses fallback';
+  }
+
+  /* ---------- Init ---------- */
+  var sel = $("scenario");
+  SCENARIOS.forEach(function (s, i) {
+    var o = document.createElement("option"); o.value = i; o.textContent = s.label; sel.appendChild(o);
+  });
+  $("simBtn").addEventListener("click", simulate);
+  $("resetBtn").addEventListener("click", reset);
+  runChecks();
+  go({ name: "feed" });
+})();
+</script>
+
+</body></html>
