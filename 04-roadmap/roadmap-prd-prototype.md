@@ -1,23 +1,41 @@
-# Roadmap, PRD & Prototype
+# Feature Roadmap, Module 4 · BU Pay & Credit
 
-> **Module 4 · ★ Deliverable 4.** Repo file `04-roadmap/roadmap-prd-prototype.md` — part of your submission.
-> Do the lab in the **Module 4 · Exercise 1 Guide** (linked from the Module 4 deck), then click **⬇ Download .md** — it saves as this exact file. Commit it here.
-> It becomes the **Roadmap, PRD & Prototype** slide of your Module 6 final deck. (Your Module 4 · Exercise 2 PRD sprint lands in `prd-and-prototype.md`.)
+**Scenario:** Riverty BU Pay & Credit, First Consumer Card
 
-## High-level product roadmap
+**Team:** [your assumed team size]
 
-_Future direction, key milestones, and phased execution over time._
+## Strategic anchors
+- **Persona:** A regular pay later user who pays in shops by tapping a bank card on autopilot and would use a pay later card daily if it worked at places like the supermarket
+- **Primary metric:** In-store share of purchases increase of 50%
+- **Moment of misery:** The card is declined at and the app gives no reason
+- **Guardrail:** In-store decline rates remains the same
 
-_____
+## Scoring
+| Feature | Value | Effort | Quadrant | Decision | Rationale |
+|---|---|---|---|---|---|
+| B1 Decline reason and retry hint | 5 | 2 | Quick Win | Now | It fixes the moment of misery directly, since a decline with a reason can be retried instead of abandoned. It doesn’t touch approval logic, so the decline-rate guardrail stays safe. |
+| B2 Add to wallet from approval screen | 5 | 3 | Major Project | Next | It lets the persona tap at the supermarket with a phone, with no shipping delay, which drives in-store share. Effort stays at 3 only if Apple and Google provisioning approvals start in month 1. |
+| B3 One balance view | 3 | 3 | Time Sinker | Cut | Seeing available limit helps avoid limit-driven declines, but it doesn’t help the persona pay in a shop. Do it when capacity frees up. |
+| B4 Choose pay now or later after paying | 2 | 5 | Time Sinker | Cut | It adds a decision to a habit built on not deciding. Retroactive switching is hard to build and could reduce pay later share. |
+| B5 Partner merchant offers | 2 | 4 | Time Sinker | Cut | This is a Sales preference. Partner deals don’t help supermarket autopilot spending and they cost business-development time. |
+| B6 Cashback on every purchase	 | 3 | 4 | Time Sinker | Cut | It could raise share, but it does nothing for a card that gets declined. It also needs a rewards engine and finance sign-off. Revisit once B1 and B2 show activation. |
+| B7 Physical card | 4 | 5 | Major Project | Next | It matches the persona’s tap habit exactly and reaches people who don’t use a wallet. Issuing, production and logistics make it heavy and long-lead, and B2 covers most of the same need sooner. |
+| B8 One due date | 2 | 4 | Time Sinker | Cut | It is a repayment convenience, not a checkout problem, and it touches billing, collections and credit terms. It has no link to the in-store share target. |
 
-## PRD snippets
+## Roadmap
+### NOW, this sprint
+- **B1 Decline reason and retry hint**, It fixes the moment of misery directly, since a decline with a reason can be retried instead of abandoned. It doesn’t touch approval logic, so the decline-rate guardrail stays safe.
 
-_The key elements of your simplified PRD._
+### NEXT, the following sprints
+- **B2 Add to wallet from approval screen**, It lets the persona tap at the supermarket with a phone, with no shipping delay, which drives in-store share. Effort stays at 3 only if Apple and Google provisioning approvals start in month 1.
+- **B7 Physical card**, It matches the persona’s tap habit exactly and reaches people who don’t use a wallet. Issuing, production and logistics make it heavy and long-lead, and B2 covers most of the same need sooner.
 
-_____
+### LATER, backlog
+- _(none)_
 
-## Wireframes / prototype
-
-_A visual or interactive model of your proposed solution._
-
-_[screenshot or link to your prototype]_
+### ✂ Cut List
+- **B3 One balance view**, Seeing available limit helps avoid limit-driven declines, but it doesn’t help the persona pay in a shop. Do it when capacity frees up.
+- **B4 Choose pay now or later after paying**, It adds a decision to a habit built on not deciding. Retroactive switching is hard to build and could reduce pay later share.
+- **B5 Partner merchant offers**, This is a Sales preference. Partner deals don’t help supermarket autopilot spending and they cost business-development time.
+- **B6 Cashback on every purchase	**, It could raise share, but it does nothing for a card that gets declined. It also needs a rewards engine and finance sign-off. Revisit once B1 and B2 show activation.
+- **B8 One due date**, It is a repayment convenience, not a checkout problem, and it touches billing, collections and credit terms. It has no link to the in-store share target.
