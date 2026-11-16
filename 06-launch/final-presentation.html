@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decline reason and retry hint | PM Final Project</title>
+<style>
+:root{
+  --bg:#07162C; --fg:#ffffff; --muted:#cbd5e1;
+  --orange:#fb923c; --cyan:#22d3ee; --teal:#34d399; --blue:#60a5fa; --violet:#a78bfa; --pink:#f472b6;
+  --eyebrow:#fdba74;
+  --card:rgba(255,255,255,0.04); --line:rgba(251,146,60,0.25);
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.45;font-size:clamp(13px,1.05vw,17px);-webkit-font-smoothing:antialiased}
+section{min-height:100vh;scroll-snap-align:start;padding:clamp(28px,5vh,56px) clamp(24px,6vw,96px);display:flex;flex-direction:column;justify-content:center;gap:clamp(14px,2.2vh,24px);position:relative;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(251,146,60,0.10),transparent 60%),radial-gradient(700px 400px at -10% 110%,rgba(34,211,238,0.07),transparent 60%),var(--bg)}
+.eyebrow{font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--eyebrow);font-size:.78em}
+h1{font-size:clamp(34px,5.6vw,84px);line-height:1.04;letter-spacing:-.02em;font-weight:800}
+h2{font-size:clamp(24px,2.9vw,44px);line-height:1.12;letter-spacing:-.015em;font-weight:800}
+h3{font-size:1.05em;font-weight:700}
+p{color:var(--muted)}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(12px,1.6vw,20px)}
+.card.hero{border-radius:16px;background:linear-gradient(145deg,rgba(251,146,60,0.14),rgba(34,211,238,0.05) 70%);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.label{font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;font-size:.7em;color:var(--eyebrow);margin-bottom:6px;display:block}
+.label.c{color:var(--cyan)}.label.t{color:var(--teal)}.label.b{color:var(--blue)}.label.v{color:var(--violet)}.label.p{color:var(--pink)}
+.grid{display:grid;gap:clamp(10px,1.4vw,18px)}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.g-wide{grid-template-columns:1.15fr 1fr}
+.small{font-size:.86em}.xs{font-size:.78em}
+.callout{border-left:4px solid var(--orange);background:linear-gradient(90deg,rgba(251,146,60,0.16),rgba(251,146,60,0.03));border-radius:0 14px 14px 0;padding:clamp(12px,1.6vw,20px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.callout p{color:#fff}
+.callout.bad{border-left-color:var(--pink);background:linear-gradient(90deg,rgba(244,114,182,0.16),rgba(244,114,182,0.03))}
+.pill{display:inline-block;font-family:var(--mono);font-size:.78em;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(251,146,60,0.1);color:#fff;margin:0 6px 6px 0}
+.pill.c{border-color:rgba(34,211,238,.45);background:rgba(34,211,238,.1)}
+.pill.t{border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.1)}
+.pill.b{border-color:rgba(96,165,250,.45);background:rgba(96,165,250,.1)}
+.pill.v{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.1)}
+ul.tight{list-style:none;display:grid;gap:7px}
+ul.tight li{padding-left:16px;position:relative;color:var(--muted)}
+ul.tight li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--orange)}
+.tag{font-family:var(--mono);font-size:.72em;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--eyebrow)}
+.metric{font-family:var(--mono);font-weight:700;font-size:clamp(22px,2.6vw,40px);color:var(--orange);line-height:1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
+.kv dt{font-family:var(--mono);font-size:.72em;text-transform:uppercase;letter-spacing:.12em;color:var(--eyebrow)}
+.kv dd{color:#fff}
+/* journey */
+.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:4px}
+.stage{padding:14px 14px 16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);position:relative}
+.stage:first-child{border-radius:14px 0 0 14px}.stage:last-child{border-radius:0 14px 14px 0}
+.stage .n{font-family:var(--mono);color:var(--cyan);font-size:.78em}
+.stage b{display:block;font-size:1.05em;margin-top:2px}
+.stage.misery{background:linear-gradient(160deg,rgba(244,114,182,.22),rgba(251,146,60,.12));border:2px solid var(--pink);box-shadow:0 0 0 4px rgba(244,114,182,.12),0 14px 36px rgba(0,0,0,.5);z-index:2;border-radius:14px}
+.stage.misery .flag{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:.7em;text-transform:uppercase;letter-spacing:.12em;background:var(--pink);color:#07162C;padding:3px 8px;border-radius:6px;font-weight:700}
+/* roadmap */
+.col{border-radius:14px;padding:14px;border:1px solid var(--line);background:var(--card)}
+.col.now{border-color:rgba(251,146,60,.7);background:linear-gradient(160deg,rgba(251,146,60,.2),rgba(251,146,60,.04));box-shadow:0 14px 36px rgba(0,0,0,.45)}
+.col.cut{border-color:rgba(244,114,182,.4)}
+.col.dem{border-color:rgba(167,139,250,.4)}
+/* ab */
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.arm{border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03)}
+.arm.var{border-color:rgba(52,211,153,.55);background:linear-gradient(160deg,rgba(52,211,153,.14),rgba(52,211,153,.02))}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rule{border-radius:14px;padding:12px 14px;border:1px solid}
+.rule.ship{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.1)}
+.rule.iter{border-color:rgba(251,146,60,.6);background:rgba(251,146,60,.1)}
+.rule.kill{border-color:rgba(244,114,182,.6);background:rgba(244,114,182,.1)}
+table{border-collapse:collapse;width:100%;font-size:.8em}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.1);color:var(--muted);vertical-align:top}
+th{font-family:var(--mono);font-size:.78em;text-transform:uppercase;letter-spacing:.1em;color:var(--eyebrow)}
+td:first-child{color:#fff;font-family:var(--mono)}
+/* chrome */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--orange),var(--pink),var(--violet));z-index:50;transition:width .15s}
+#dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:50}
+#dots button{width:11px;height:11px;border-radius:50%;border:1px solid var(--eyebrow);background:transparent;cursor:pointer;padding:0;transition:all .2s}
+#dots button.on{background:var(--orange);border-color:var(--orange);transform:scale(1.35)}
+#dots button:focus-visible,.cta:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.pager{position:absolute;right:clamp(24px,6vw,96px);bottom:18px;font-family:var(--mono);font-size:.72em;color:rgba(203,213,225,.6)}
+.slide-tag{position:absolute;left:clamp(24px,6vw,96px);bottom:18px;font-family:var(--mono);font-size:.72em;color:rgba(203,213,225,.6)}
+.cover h1 span{color:var(--orange)}
+.submit{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:.95em;padding:14px 26px;border-radius:999px;background:linear-gradient(90deg,var(--orange),#f97316);color:#07162C;box-shadow:0 12px 34px rgba(251,146,60,.35)}
+@media (max-width:900px){
+  .g2,.g3,.g4,.g-wide,.ab,.rules{grid-template-columns:1fr}
+  .journey{grid-template-columns:1fr 1fr}
+  #dots{right:8px}
+  section{padding-right:34px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+<nav id="dots" aria-label="Slides"></nav>
+
+<!-- 1 COVER -->
+<section class="cover" id="s1" data-title="Cover">
+  <span class="eyebrow">Product School · Product Management Certification · Final Project</span>
+  <h1>Decline reason<br>and <span>retry hint</span></h1>
+  <p style="font-size:clamp(18px,2vw,30px);color:#fff;max-width:28ch">Use your card in all stores</p>
+  <div class="grid g3" style="max-width:980px;margin-top:8px">
+    <div class="card"><span class="label">Name / cohort</span><p style="color:#fff">Lina Ortstad - Cohort 2 - November 2026</p></div>
+    <div class="card"><span class="label c">Repo</span><p class="mono small" style="color:#fff;word-break:break-all">https://github.com/LinaOrtstad/pm-final-project</p></div>
+    <div class="card"><span class="label t">Prototype</span><p class="mono small" style="color:#fff">04-roadmap/Prototype Decline Reason and Retry Hint.html</p></div>
+  </div>
+  <span class="slide-tag">Scroll, or press ↓ / Space</span>
+</section>
+
+<!-- 2 STRATEGY -->
+<section id="s2" data-title="Strategy">
+  <div><span class="eyebrow">Slide 5 · Strategy</span><h2>Riverty stays an invisible checkout button</h2></div>
+  <div class="card hero">
+    <span class="label">Problem hook · BU P&amp;C</span>
+    <p style="color:#fff;font-size:1.08em">Riverty’s shoppers already juggle bills, due dates and rival apps to manage what they owe, and while competitors like Klarna turn that daily need into card and app habits (5 million active card users and counting), Riverty stays an invisible checkout button, so the consumer relationship, and eventually the merchants that follow it, are slipping away to someone else.</p>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <span class="label c">Value proposition</span>
+      <p class="small">For repeat Riverty shoppers, the Riverty card is the everyday way to pay that shows what you owe and when, and lets you choose to pay now, split or pay later, without fee surprises. Unlike a bank card or a rival’s app, it is built on the same trusted checkout relationship you already have with the merchants you shop at.</p>
+      <p class="small" style="margin-top:8px;color:#fff"><b>Launch now</b>, starting with a wallet-ready virtual card and due-date nudges, because every quarter without a daily presence lets competitors own the consumer relationship that Riverty’s merchants depend on.</p>
+    </div>
+    <div class="card">
+      <span class="label p">Moment of misery</span>
+      <p class="small">Searching inbox for Riverty emails, opening banking app for checking balances, setting calneder reminders on when to pay, Using a bank card, Apple Pay or a rival’s card, because Riverty has no card in the wallet</p>
+      <span class="label" style="margin-top:12px">Cold-read check</span>
+      <p class="small">High business risk if not up to date with market and competitors · a systematic problem · the value proposition actually removes the obstacle.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="label">Data-backed hypothesis</span>
+    <p class="small">Based on a regular pay later user who pays in shops by tapping a bank card on autopilot and would use a pay later card daily if it worked at places like the supermarket, in-store share of purchases today never exceeded <b class="mono" style="color:var(--orange)">17.7%</b>. I believe that the ability to use one card everywhere, including splitting the big weekly shop, without thinking about it, will result in the user using the Riverty card for all their purchases, as measured by a <b class="mono" style="color:var(--orange)">50%</b> increase in in-store share of purchases. I will protect in-store decline rates (remain the same) and will make a go/no-go decision after <b class="mono" style="color:var(--orange)">6 months</b>.</p>
+  </div>
+</section>
+
+<!-- 3 RESEARCH -->
+<section id="s3" data-title="Research">
+  <div><span class="eyebrow">Slide 6 · Research</span><h2>Competitive analysis and workaround</h2></div>
+  <div class="grid g-wide">
+    <div class="card">
+      <dl class="kv small">
+        <dt>Role</dt><dd>A regular pay later user who pays in shops by tapping a bank card on autopilot and would use a pay later card daily if it worked at places like the supermarket</dd>
+        <dt>Goal</dt><dd>Use one card everywhere, including splitting the big weekly shop, without thinking about it.</dd>
+        <dt>External tool</dt><dd>Default to the regular bank card</dd>
+        <dt>Friction</dt><dd>The card is declined at a bakery, and the app gives no reason (N-06, T-101). The participant went back to their debit card the same week. For many users the moment comes even earlier: 143 activated cards never reached the phone wallet (T-102).</dd>
+      </dl>
+    </div>
+    <div class="card">
+      <span class="label v">The workaround, step by step</span>
+      <ul class="tight small">
+        <li><b style="color:#fff">Default to the bank card</b> (documented). Taps it “without thinking” (N-03).</li>
+        <li><b style="color:#fff">Attempt the Riverty card</b>, or never get that far (documented and inferred).</li>
+        <li><b style="color:#fff">Hit a decline with no explanation</b> (documented).</li>
+        <li><b style="color:#fff">Switch to the debit card at the till</b> (documented).</li>
+        <li><b style="color:#fff">Pay twice when the notification is late</b> (documented, for some users; T-108).</li>
+        <li><b style="color:#fff">Keep using Riverty only where it already works</b> (inferred).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="label">Core frustration · the evidence</span>
+    <p class="small">It is a manual fallback with no feedback loop. With no decline reason, they can’t tell whether the problem was a limit, a rule or a terminal fault, so retrying is a gamble. They wanted “one card everywhere” without thinking. The fallback means carrying and remembering two cards, which is the mental overhead N-02 and N-03 describe.</p>
+  </div>
+  <div>
+    <span class="label c">Journey map · <span class="mono" style="text-transform:none;letter-spacing:0">journey-map-everyday-tapper.png</span></span>
+    <div class="journey">
+      <div class="stage"><span class="n">1</span><b>Get ready</b></div>
+      <div class="stage misery"><span class="n">2</span><b>First tap</b><span class="flag">Moment of misery</span><p class="xs" style="color:#fff;margin-top:6px">Declined at a bakery, no reason given</p></div>
+      <div class="stage"><span class="n">3</span><b>Weekly shop</b></div>
+      <div class="stage"><span class="n">4</span><b>Habit</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 BLUEPRINT -->
+<section id="s4" data-title="Blueprint">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+    <div><span class="eyebrow">Slide 7 · Blueprint</span><h2>Prioritization, roadmap and PRD</h2></div>
+    <div class="card" style="padding:10px 14px"><span class="label t" style="margin:0 0 2px">Prototype</span><span class="mono small" style="color:#fff">04-roadmap/Prototype Decline Reason and Retry Hint.html</span></div>
+  </div>
+  <div class="grid g3">
+    <div class="col now">
+      <span class="label">Now · this sprint</span>
+      <h3>B1 Decline reason and retry hint</h3>
+      <p class="xs" style="margin-top:6px">Instinctive quick wins before the AI: B1 and B2 (B2 Add to phone wallet straight from the approval screen). Overrides: B2 &amp; B3, roadmap builder valued it differently than AI.</p>
+    </div>
+    <div class="col cut">
+      <span class="label p">Cut · the “no” protecting scope</span>
+      <div><span class="pill">B3</span><span class="pill">B4</span><span class="pill">B5</span><span class="pill">B6</span><span class="pill">B8</span></div>
+      <p class="xs">Roadmap file: <span class="mono">04-roadmap/roadmap.html</span></p>
+    </div>
+    <div class="col dem">
+      <span class="label v">Demoted from Must → Should / Won’t</span>
+      <ul class="tight xs">
+        <li>Customer service contact info</li>
+        <li>Pre-decline warnings (overlap with B3, cut)</li>
+        <li>Switching to pay now at the till (overlap with B4, cut)</li>
+        <li>Limit-increase requests and anything that loosens approvals</li>
+        <li>SMS or email channels</li>
+        <li>Credit-score or risk-factor explanations</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <span class="label c">PRD highlights · MUST HAVE for B1</span>
+    <div class="grid g4 xs">
+      <div><b style="color:#fff">Visible in seconds.</b><br><span class="muted">Every in-store decline shows up in the app within seconds, with merchant, amount and time.</span></div>
+      <div><b style="color:#fff">Plain-language reason.</b><br><span class="muted">A short fixed set, plus a fallback for unmapped codes. No silent declines.</span></div>
+      <div><b style="color:#fff">Retry-or-switch signal.</b><br><span class="muted">One line: “try again” or “pay another way now”.</span></div>
+      <div><b style="color:#fff">Push to the declined transaction.</b><br><span class="muted">A push notification that opens straight to it.</span></div>
+    </div>
+  </div>
+  <div class="callout"><span class="label">Constraint</span><p class="small">No change to approval logic, and no exposure of risk or fraud rules in the copy. This protects the decline-rate guardrail, and the feature explains declines without changing them.</p></div>
+</section>
+
+<!-- 5 VALIDATION -->
+<section id="s5" data-title="Validation">
+  <div><span class="eyebrow">Slide 8 · Validation</span><h2>Experiment plan: Decline reason and retry hint</h2></div>
+  <div class="card hero">
+    <span class="label">Hypothesis</span>
+    <p class="small" style="color:#fff">I believe that <b>Decline reason and retry hint</b> for a regular pay later user who pays in shops by tapping a bank card on autopilot will result in the user being able to use one card everywhere, including splitting the big weekly shop, without thinking about it, as measured by a +2 pts change in in-store share of purchases within 1 month.</p>
+  </div>
+  <div class="ab">
+    <div class="arm">
+      <span class="label">Control (A) · today</span>
+      <p class="xs">The card is declined at a bakery, and the app gives no reason (N-06, T-101). The participant went back to their debit card the same week. 143 activated cards never reached the phone wallet (T-102).</p>
+    </div>
+    <div class="arm var">
+      <span class="label t">Variant (B) · single change</span>
+      <p class="xs">Notification and activity feed entry point, a decline detail screen with reason (12 words or fewer) and one hint (“Try again” or “Pay another way”), then a resolution screen. Deliberately absent: contact links, a detailed view, any risk wording.</p>
+    </div>
+  </div>
+  <div class="grid g4">
+    <div class="card"><span class="label">Primary metric</span><div class="metric">17.7%</div><p class="xs">Baseline: in-store share of purchases (target +50%)</p></div>
+    <div class="card"><span class="label b">MDE</span><div class="metric">+2 pts</div><p class="xs">Smallest improvement worth shipping</p></div>
+    <div class="card"><span class="label p">Guardrail</span><div class="metric">&lt;15%</div><p class="xs">Boundary before we investigate</p></div>
+    <div class="card"><span class="label c">Design</span><div class="metric">5000</div><p class="xs">Per arm · 50/50 over 1 month · p &lt; 0.05</p></div>
+  </div>
+  <div class="rules small">
+    <div class="rule ship"><span class="label t">Ship</span><p style="color:#fff" class="xs">In-store share of purchases improves by ≥ +2 pts at p &lt; 0,05 and the guardrail holds.</p></div>
+    <div class="rule iter"><span class="label">Iterate</span><p style="color:#fff" class="xs">Direction is positive but lift is below MDE.</p></div>
+    <div class="rule kill"><span class="label p">Kill</span><p style="color:#fff" class="xs">The primary metric shows no improvement or moves negatively.</p></div>
+  </div>
+  <p class="xs">Isolation check, identical between arms: app version, eligibility rules, onboarding to app. Read date fixed at the end of 1 month; no results reviewed before then.</p>
+</section>
+
+<!-- 6 LAUNCH -->
+<section id="s6" data-title="Launch">
+  <div><span class="eyebrow">Slide 9 · Launch</span><h2>GTM Launch Plan, Riverty BU Pay &amp; Credit</h2></div>
+  <div class="grid g-wide">
+    <div class="card">
+      <dl class="kv small">
+        <dt>Feature</dt><dd>Decline reason and retry hint</dd>
+        <dt>Goal</dt><dd>Conversion. Increase the share of declined Riverty card transactions that end in a successful Riverty retry, so cardholders stay with Riverty instead of switching to another card.</dd>
+        <dt>Audience</dt><dd>Existing Riverty cardholders who have had at least one decline in the last 90 days</dd>
+        <dt>Tier</dt><dd><span class="pill">M, Targeted</span></dd>
+        <dt>Channels</dt><dd>
+          <span class="pill c">Owned: in-product decline screen</span>
+          <span class="pill c">Owned: triggered in-app message</span>
+          <span class="pill c">Owned: email to declined segment</span></dd>
+        <dt>Assets</dt><dd>Launch email, In app notifications, merchant material</dd>
+      </dl>
+    </div>
+    <div class="card hero">
+      <span class="label t">Success-metrics dashboard</span>
+      <div class="grid g2" style="margin-bottom:10px">
+        <div><div class="metric" style="color:var(--teal)">&gt;17%</div><p class="xs">Success: card usage increases above 17%</p></div>
+        <div><div class="metric" style="color:var(--pink)">&lt;17%</div><p class="xs">Bad signal: card usage decreases lower than 17%</p></div>
+      </div>
+      <p class="xs"><b style="color:#fff">Primary:</b> decline-to-successful-Riverty-retry rate rises from [baseline]% to [target]% within [X] weeks, versus a holdout group.</p>
+      <p class="xs" style="margin-top:6px"><b style="color:#fff">Leading (weekly):</b> decline-screen views, hint tap rate, retry attempt rate.</p>
+      <p class="xs" style="margin-top:6px"><b style="color:#fff">Guardrails:</b> support contacts per decline, notification opt-outs, complaints about decline wording.</p>
+    </div>
+  </div>
+  <div class="callout bad">
+    <span class="label p">Bad signal to watch for</span>
+    <p class="xs">Hint tap rate below 15% after 2 weeks → revise the hint copy and placement. Retry attempts rise but retry success is flat → pause and review the hint logic with Product and Compliance. Support contacts per decline exceed 10% → escalate to PM and update the copy.</p>
+  </div>
+  <div class="card">
+    <span class="label">Ownership &amp; timeline · all due 261130</span>
+    <table>
+      <tr><th>Activity</th><th>Owner</th><th>Approver</th><th>Budget</th><th>Status</th></tr>
+      <tr><td>Segment definition and baseline</td><td>[Data]</td><td>PM</td><td>€0</td><td>To confirm</td></tr>
+      <tr><td>Decline-screen copy</td><td>[Name]</td><td>Legal/Compliance</td><td>€0</td><td>To confirm</td></tr>
+      <tr><td>Triggered in-app message build</td><td>[Eng/Design]</td><td>PM</td><td>[€0]</td><td>Capacity unconfirmed</td></tr>
+      <tr><td>Launch email</td><td>[Marketing]</td><td>PM</td><td>[€]</td><td>To confirm</td></tr>
+      <tr><td>Merchant material (if kept)</td><td>[Partnerships]</td><td>PM</td><td>[€0]</td><td>On hold</td></tr>
+      <tr><td>Support readiness</td><td>[Support lead]</td><td>PM</td><td>€0</td><td>To confirm</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7 STORY -->
+<section id="s7" data-title="Story">
+  <div><span class="eyebrow">Slide 10 · Story</span><h2>What the work taught me</h2></div>
+  <div class="grid g2">
+    <div class="card hero">
+      <span class="label p">Friction</span>
+      <p style="color:#fff;font-size:1.1em">Difficult to scope out exact measaures for the testing and go to market plan.</p>
+    </div>
+    <div class="card hero">
+      <span class="label t">Aha moment</span>
+      <p style="color:#fff;font-size:1.1em">Got suprisingly good refinement from Claude.</p>
+    </div>
+  </div>
+  <div class="card">
+    <span class="label c">Key takeaways</span>
+    <p style="color:#fff;font-size:1.1em">Amazing to use claude as a sparring partner and to structure the work.</p>
+  </div>
+  <div class="card" style="border-style:dashed">
+    <span class="label">What I would do next</span>
+    <p class="small">Next steps to be added.</p>
+  </div>
+</section>
+
+<!-- 8 THANK YOU -->
+<section id="s8" data-title="Submit" style="align-items:flex-start">
+  <span class="eyebrow">Thank you</span>
+  <h1>Thank you</h1>
+  <div class="grid g2" style="max-width:900px;width:100%">
+    <div class="card"><span class="label c">Repo</span><p class="mono small" style="color:#fff;word-break:break-all">https://github.com/LinaOrtstad/pm-final-project</p></div>
+    <div class="card"><span class="label">Cohort</span><p class="mono small" style="color:#fff">Cohort 2 · November 2026</p></div>
+  </div>
+  <div class="submit">Submit to the learning platform</div>
+  <span class="slide-tag">Esc to return to the cover</span>
+</section>
+
+<script>
+(function(){
+  var secs=[].slice.call(document.querySelectorAll('section'));
+  var dots=document.getElementById('dots'), bar=document.getElementById('progress');
+  var btns=secs.map(function(s,i){
+    var b=document.createElement('button');
+    b.setAttribute('aria-label','Go to slide '+(i+1)+': '+s.dataset.title);
+    b.title=s.dataset.title;
+    b.addEventListener('click',function(){go(i)});
+    dots.appendChild(b);
+    var pg=document.createElement('span');pg.className='pager';pg.textContent=(i+1)+' / '+secs.length;
+    if(i>0)s.appendChild(pg);
+    return b;
+  });
+  function cur(){
+    var y=window.scrollY+window.innerHeight/2,idx=0;
+    secs.forEach(function(s,i){if(s.offsetTop<=y)idx=i});
+    return idx;
+  }
+  function go(i){
+    i=Math.max(0,Math.min(secs.length-1,i));
+    secs[i].scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+  }
+  function update(){
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(max>0?window.scrollY/max*100:0)+'%';
+    var c=cur();btns.forEach(function(b,i){b.classList.toggle('on',i===c)});
+  }
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    var k=e.key;
+    if(k==='ArrowDown'||k===' '||k==='Spacebar'){e.preventDefault();go(cur()+(e.shiftKey&&k===' '?-1:1))}
+    else if(k==='ArrowUp'){e.preventDefault();go(cur()-1)}
+    else if(k==='Home'){e.preventDefault();go(0)}
+    else if(k==='End'){e.preventDefault();go(secs.length-1)}
+    else if(k==='Escape'){e.preventDefault();go(0)}
+  });
+  update();
+})();
+</script>
+</body>
+</html>
