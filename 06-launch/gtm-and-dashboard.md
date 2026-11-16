@@ -1,35 +1,39 @@
-# GTM Strategy & Success Dashboard (Module 6)
+# GTM Launch Plan, Riverty BU Pay & Credit, First Consumer Card
 
-## Get your prior work ready
-- **The feature you're launching from your M4 PRD, one feature, not a list:** Decline reason and retry hint
-- **What your M5 experiment will test your hypothesis, primary metric and ship / iterate rule, the evidence the launch rests on:** We will SHIP if In-store share of purchases increase with 50% improves by ≥ +2 pts at P < 0,05 and <17,7% does not reach Drop to 10% usage after 1 month. We will ITERATE if direction is positive but lift is below MDE. We will KILL if the primary metric shows no improvement or moves negatively. The read date is fixed at the end of 1 month, no results reviewed before then.
+| Field | Value |
+|---|---|
+| Feature | Decline reason and retry hint |
+| Goal | Conversion |
+| Launch tier | M, Targeted |
 
+## Goal & Audience
+- **Goal:** Conversion, Increase the share of declined Riverty card transactions that end in a successful Riverty retry, so cardholders stay with Riverty instead of switching to another card.
+- **Target audience:** Existing Riverty cardholders who have had at least one decline in the last 90 days
 
-I believe that [Decline reason and retry hint] for A regular pay later user who pays in shops by tapping a bank card on autopilot and would use a pay later card daily if it worked at places like the supermarket will result in User can use one card everywhere, including splitting the big weekly shop, without thinking about it., as measured by a +2 pts change in In-store share of purchases increase with 50% within 1 month. We will protect <17,7% throughout the test.
-- **Your persona pull your M2 persona, this anchors your audience:** A regular pay later user who pays in shops by tapping a bank card on autopilot and would use a pay later card daily if it worked at places like the supermarket
+## Launch Tier
+- **M, Targeted**, Extending an  already existing features but impacts revenue positive if number of users increase
 
-## Set your goal, then your audience
-- **Primary GTM goal awareness · engagement · conversion, pick one:** Goal: Conversion, Want to convert users to use Riverty card instead of competitors card
-- **Why this goal? what makes this the right goal for this feature right now:** Want to convert users to use Riverty card instead of competitors card
-- **Target audience the specific segment your goal implies, be precise:** Audience: A regular pay later user who pays in shops by tapping a bank card on autopilot
+## Channels
+1. **Owned: In-product decline screen (the feature itself): the primary touchpoint at the moment of decline**
+2. **Owned: Triggered in-app message shortly after a decline: reinforces the hint and shows the retry path.**
+3. **Owned: Email to the declined segment only, as a follow-up: explains the feature and builds trust that a decline is recoverable.**
 
-## Size your launch
-- **Launch tier S (minimal) · M (targeted) · L (multi-channel) · XL (full GTM):** M
-- **Justification reach + revenue impact + what silence would risk:** Extending an already existing features but impacts revenue positive if number of users increase
-- **Is this a launch or a release? does it need go-to-market, or can it just ship?:** I would say it is more a release, extending and upgrading an existing feature
+## Enablement & Assets
+Launch email, In app notifications, merchant material
 
-## Choose your top three channels and plan assets
-- **Channel 1 owned / earned / paid, and why it reaches your audience:** Owned - existing app users
-- **Channel 2 owned / earned / paid, and why:** Owned - email to existing users
-- **Channel 3 owned / earned / paid, and why:** Owned - create awarness with our existing merchants
-- **Enablement & assets what Sales / CS / Support need, plus the assets to build (one-pager, demo, etc.):** Demo of feature to our CS, one pager to merchants, involve marketing for communication
+## Ownership, Budget & Timeline
+- **Ownership & budget:** Activity	Owner	Approver	Due	Budget	Status
+Segment definition and baseline	[Data]	PM	261130	€0	To confirm
+Decline-screen copy	[Name]	Legal/Compliance	261130	€0	To confirm
+Triggered in-app message build	[Eng/Design]	PM	261130	[€0]	Capacity unconfirmed
+Launch email	[Marketing]	PM	261130	[€]	To confirm
+Merchant material (if kept)	[Partnerships]	PM	261130	[€0]	On hold
+Support readiness	[Support lead]	PM	261130	€0	To confirm
+- **Timeline:** _(not filled in)_
 
-## Make it executable
-- **Ownership named owner per key activity, individual, not department:** Ownership & budget: PM owns the plan, marketing email communication to customer and communication to merchants, and communication within the app
-- **Budget & resource gaps what costs extra, and any asset you can't currently build:** _(not filled in)_
-- **Timeline Phase 1 beta → Phase 2 launch moment → Phase 3 post-launch:** _(not filled in)_
-
-## Define how you'll know it worked
-- **Success metrics 2 to 3 metrics that match your GTM goal:** Card usage as increased, more than 17% usage
-- **Bad signal to watch for e.g. high reach, zero signups = message-market mismatch:** Card usage decreases, gets lower thant 17%
-- **Most likely post-launch decision double-down · iterate · pivot · deprioritize, and what would trigger it:** _(not filled in)_
+## Success Metrics
+- **Metrics:** Primary: Decline-to-successful-Riverty-retry rate rises from [baseline]% to [target]% within [X] weeks, versus a holdout group.
+Leading indicators (check weekly): decline-screen views, hint tap rate, retry attempt rate.
+Guardrails: support contacts per decline, notification opt-outs, complaints about decline wording.
+- **Bad signal to watch for:** If hint tap rate is below 15% after 2 weeks → revise the hint copy and placement. If retry attempts rise but retry success is flat → pause and review the hint logic with Product and Compliance. If support contacts per decline exceed 10% → escalate to PM and update the copy.
+- **Likely post-launch decision:** _(not filled in)_
